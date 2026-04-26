@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Kashif Saleem — Computational Biologist & Bioinformatics Researcher. Transcriptomics, multi-omics, machine learning, and reproducible pipelines." />
+<title>Kashif Saleem — Computational Biologist & Bioinformatics Researcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+  :root{
+    --bg-0:#05060a;
+    --bg-1:#0a0d14;
+    --bg-2:#101521;
+    --ink:#e6eef7;
+    --ink-soft:#a8b3c7;
+    --ink-mute:#6b7891;
+    --accent:#22d3ee;        /* cyan */
+    --accent-2:#a78bfa;      /* violet */
+    --accent-3:#34d399;      /* emerald */
+    --line:rgba(255,255,255,0.08);
+    --card:rgba(255,255,255,0.04);
+    --card-strong:rgba(255,255,255,0.06);
+    --glow:0 0 40px rgba(34,211,238,0.18);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg-0);
+    color:var(--ink);
+    line-height:1.65;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* === BACKGROUND CANVAS (DNA Helix) === */
+  #bg-canvas{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    width:100%;
+    height:100%;
+    opacity:0.4;
+    filter:blur(0.4px);
+    pointer-events:none;
+  }
+  /* Stars canvas - layered above DNA */
+  #stars-canvas{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+  /* Glow nebula blobs */
+  .nebula{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(120px);
+    opacity:.35;
+    z-index:-1;
+    pointer-events:none;
+    will-change:transform;
+  }
+  .nebula.n1{width:600px;height:600px;background:radial-gradient(circle,#22d3ee,transparent 70%);top:-100px;left:-200px}
+  .nebula.n2{width:700px;height:700px;background:radial-gradient(circle,#a78bfa,transparent 70%);top:40%;right:-200px}
+  .nebula.n3{width:500px;height:500px;background:radial-gradient(circle,#34d399,transparent 70%);bottom:-100px;left:30%}
+  /* Aurora overlay */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      radial-gradient(900px 600px at 12% 10%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(900px 600px at 88% 30%, rgba(167,139,250,0.10), transparent 60%),
+      radial-gradient(700px 500px at 50% 95%, rgba(52,211,153,0.06), transparent 60%);
+    pointer-events:none;
+  }
+  /* Subtle grid */
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse at center, rgba(0,0,0,0.7), transparent 70%);
+    pointer-events:none;
+  }
+
+  /* === NAVIGATION === */
+  .nav{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    padding:18px 40px;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    background:rgba(5,6,10,0.55);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s ease, padding .3s ease;
+  }
+  .nav.scrolled{border-bottom-color:var(--line); padding:12px 40px}
+  .nav-inner{
+    max-width:1240px;margin:0 auto;
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+  }
+  .logo{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;font-size:18px;letter-spacing:.5px;
+    display:flex;align-items:center;gap:10px;
+    color:var(--ink);text-decoration:none;
+  }
+  .logo-mark{
+    width:32px;height:32px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;
+    font-weight:800;font-size:14px;color:#04101a;
+    box-shadow:var(--glow);
+  }
+  .nav-links{display:flex;gap:6px;list-style:none}
+  .nav-links a{
+    color:var(--ink-soft);text-decoration:none;font-size:14px;font-weight:500;
+    padding:8px 14px;border-radius:8px;transition:all .25s ease;
+  }
+  .nav-links a:hover{color:var(--ink);background:rgba(255,255,255,0.05)}
+  .nav-cta{
+    padding:9px 18px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#04101a;font-weight:600;font-size:13.5px;text-decoration:none;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(34,211,238,0.25)}
+  .menu-toggle{display:none;background:none;border:none;color:var(--ink);cursor:pointer;font-size:22px}
+
+  /* === COMMON LAYOUT === */
+  .container{max-width:1240px;margin:0 auto;padding:0 40px}
+  section{padding:120px 0;position:relative}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    color:var(--accent);letter-spacing:2px;text-transform:uppercase;
+    padding:6px 14px;border-radius:999px;
+    background:rgba(34,211,238,0.06);
+    border:1px solid rgba(34,211,238,0.18);
+    margin-bottom:18px;
+  }
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:700;line-height:1.15;letter-spacing:-.02em}
+  h2{font-size:clamp(32px,4vw,52px);margin-bottom:14px}
+  h2 .accent{background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .section-sub{color:var(--ink-soft);font-size:17px;max-width:680px;margin-bottom:60px}
+
+  /* === HERO === */
+  .hero{
+    min-height:100vh;
+    display:flex;align-items:center;
+    padding-top:120px;padding-bottom:80px;
+    position:relative;
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1.3fr .9fr;gap:80px;align-items:center;
+  }
+  .hero-status{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:7px 14px;border-radius:999px;
+    background:rgba(52,211,153,0.07);
+    border:1px solid rgba(52,211,153,0.25);
+    color:var(--accent-3);
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    margin-bottom:24px;
+  }
+  .pulse{
+    width:8px;height:8px;border-radius:50%;background:var(--accent-3);
+    box-shadow:0 0 0 0 rgba(52,211,153,.7);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,.7)}
+    70%{box-shadow:0 0 0 12px rgba(52,211,153,0)}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}
+  }
+
+  .hero h1{
+    font-size:clamp(44px,6.5vw,84px);
+    font-weight:700;
+    margin-bottom:14px;
+  }
+  .hero h1 .gradient{
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 50%,var(--accent-3) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:200% 200%;
+    animation:shift 6s ease-in-out infinite;
+  }
+  @keyframes shift{
+    0%,100%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+  }
+  .hero-role{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--ink-soft);font-size:18px;margin-bottom:24px;
+    min-height:28px;
+  }
+  .hero-role .cursor{display:inline-block;width:9px;height:20px;background:var(--accent);margin-left:3px;vertical-align:middle;animation:blink 1.1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hero-tag{color:var(--ink-soft);font-size:18px;max-width:560px;margin-bottom:36px}
+
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:13px 22px;border-radius:11px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;
+    text-decoration:none;cursor:pointer;border:none;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease, border-color .25s ease;
+    position:relative;overflow:hidden;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#04101a;
+    box-shadow:0 8px 30px rgba(34,211,238,0.20);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(34,211,238,0.35)}
+  .btn-ghost{
+    background:rgba(255,255,255,0.04);
+    color:var(--ink);
+    border:1px solid var(--line);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,0.08);border-color:rgba(34,211,238,0.4);transform:translateY(-2px)}
+  .btn svg{width:16px;height:16px}
+
+  .hero-socials{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .social-btn{
+    width:42px;height:42px;border-radius:11px;
+    display:grid;place-items:center;
+    background:var(--card);border:1px solid var(--line);
+    color:var(--ink-soft);text-decoration:none;
+    transition:all .25s ease;
+  }
+  .social-btn:hover{color:var(--accent);border-color:rgba(34,211,238,0.4);transform:translateY(-2px) rotate(-4deg)}
+  .social-btn svg{width:18px;height:18px}
+
+  /* Profile card (right side) */
+  .hero-card{
+    position:relative;perspective:1200px;
+    display:flex;justify-content:center;
+  }
+  .profile-shell{
+    position:relative;
+    width:340px;height:420px;
+    border-radius:24px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.10),rgba(167,139,250,0.10));
+    border:1px solid var(--line);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    padding:24px;
+    transform-style:preserve-3d;
+    transition:transform .3s cubic-bezier(.2,.7,.3,1);
+    box-shadow:0 30px 80px rgba(0,0,0,0.45);
+  }
+  .profile-shell::before{
+    content:'';position:absolute;inset:-1px;border-radius:24px;
+    padding:1px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.5),rgba(167,139,250,0.5),rgba(52,211,153,0.5));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    pointer-events:none;opacity:.7;
+  }
+  .avatar{
+    width:100%;height:260px;border-radius:18px;
+    overflow:hidden;position:relative;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(34,211,238,0.35), transparent 60%),
+      radial-gradient(circle at 70% 70%, rgba(167,139,250,0.35), transparent 60%),
+      linear-gradient(135deg,#0e1727,#1a1130);
+    display:grid;place-items:center;
+  }
+  .avatar svg{width:160px;height:160px}
+  .avatar .initials{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:96px;font-weight:700;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:-2px;
+  }
+  .profile-meta{padding:18px 4px 4px}
+  .profile-meta .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px}
+  .profile-meta .title{color:var(--ink-soft);font-size:13.5px;margin-top:4px;font-family:'JetBrains Mono',monospace}
+  .profile-meta .location{color:var(--ink-mute);font-size:13px;margin-top:8px;display:flex;align-items:center;gap:6px}
+
+  .float-tag{
+    position:absolute;
+    padding:8px 14px;border-radius:10px;
+    background:rgba(10,13,20,0.85);
+    backdrop-filter:blur(10px);
+    border:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;color:var(--ink);
+    box-shadow:0 12px 30px rgba(0,0,0,.4);
+  }
+  .float-tag.t1{top:-14px;left:-30px;color:var(--accent);border-color:rgba(34,211,238,0.3);animation:float1 6s ease-in-out infinite}
+  .float-tag.t2{bottom:30px;right:-40px;color:var(--accent-2);border-color:rgba(167,139,250,0.3);animation:float2 7s ease-in-out infinite}
+  .float-tag.t3{top:50%;left:-50px;color:var(--accent-3);border-color:rgba(52,211,153,0.3);animation:float1 8s ease-in-out infinite}
+  @keyframes float1{50%{transform:translateY(-12px)}}
+  @keyframes float2{50%{transform:translateY(14px) translateX(-6px)}}
+
+  .scroll-cue{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .scroll-cue .line{width:1px;height:50px;background:linear-gradient(transparent,var(--ink-mute));animation:scrolldown 2.2s ease-in-out infinite}
+  @keyframes scrolldown{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  /* === SECTION TITLES === */
+  .section-head{margin-bottom:60px}
+
+  /* === ABOUT === */
+  .about-grid{
+    display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:start;
+  }
+  .about-text p{color:var(--ink-soft);font-size:16.5px;margin-bottom:18px}
+  .about-text strong{color:var(--ink)}
+  .stat-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  }
+  .stat-card{
+    padding:24px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);
+    transition:transform .3s ease, border-color .3s ease, background .3s ease;
+  }
+  .stat-card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,0.3);background:var(--card-strong)}
+  .stat-card .num{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    line-height:1;
+  }
+  .stat-card .lab{color:var(--ink-soft);font-size:13.5px;margin-top:8px}
+
+  /* === RESEARCH INTERESTS === */
+  .interest-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .interest{
+    padding:30px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);
+    position:relative;overflow:hidden;
+    transition:transform .35s cubic-bezier(.2,.7,.3,1), border-color .35s ease;
+  }
+  .interest::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(34,211,238,0.08), transparent 60%);
+    opacity:0;transition:opacity .3s ease;pointer-events:none;
+  }
+  .interest:hover{transform:translateY(-6px);border-color:rgba(34,211,238,0.3)}
+  .interest:hover::before{opacity:1}
+  .interest .icon{
+    width:48px;height:48px;border-radius:12px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(167,139,250,0.18));
+    border:1px solid rgba(34,211,238,0.25);
+    display:grid;place-items:center;margin-bottom:18px;
+    color:var(--accent);
+  }
+  .interest h3{font-size:18px;margin-bottom:10px;color:var(--ink)}
+  .interest p{color:var(--ink-soft);font-size:14.5px}
+
+  /* === EXPERIENCE TIMELINE === */
+  .timeline{position:relative;padding-left:40px}
+  .timeline::before{
+    content:'';position:absolute;left:11px;top:6px;bottom:6px;width:1px;
+    background:linear-gradient(transparent,var(--line) 8%, var(--line) 92%, transparent);
+  }
+  .tl-item{position:relative;margin-bottom:34px}
+  .tl-item::before{
+    content:'';position:absolute;left:-34px;top:8px;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--bg-0);border:2px solid var(--accent);
+    box-shadow:0 0 0 4px rgba(34,211,238,0.15);
+  }
+  .tl-card{
+    padding:24px 26px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .tl-card:hover{transform:translateX(6px);border-color:rgba(34,211,238,0.3)}
+  .tl-meta{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+  .tl-role{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:var(--ink)}
+  .tl-org{color:var(--accent);font-size:14px;margin-top:2px}
+  .tl-date{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-mute);
+    padding:4px 10px;border-radius:6px;background:rgba(255,255,255,0.04);
+    border:1px solid var(--line);white-space:nowrap;
+  }
+  .tl-list{margin-top:14px;list-style:none}
+  .tl-list li{
+    color:var(--ink-soft);font-size:14.5px;padding-left:20px;position:relative;margin-bottom:8px;
+  }
+  .tl-list li::before{content:'';position:absolute;left:0;top:11px;width:8px;height:1px;background:var(--accent)}
+
+  /* === PUBLICATIONS === */
+  .pub-list{display:grid;gap:18px}
+  .pub{
+    padding:24px 26px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);
+    transition:transform .3s ease, border-color .3s ease;
+    display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;
+  }
+  .pub:hover{transform:translateY(-3px);border-color:rgba(167,139,250,0.3)}
+  .pub-num{
+    width:38px;height:38px;border-radius:10px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(167,139,250,0.18));
+    border:1px solid rgba(34,211,238,0.25);
+    color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;
+    flex-shrink:0;
+  }
+  .pub-body .pub-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;color:var(--ink);margin-bottom:6px;line-height:1.4}
+  .pub-body .pub-meta{color:var(--ink-soft);font-size:13.5px}
+  .pub-body .pub-meta em{color:var(--ink-mute);font-style:normal}
+  .pub-body .pub-author-self{color:var(--accent);font-weight:600}
+  .pub-body .pub-status{
+    display:inline-block;margin-top:8px;
+    padding:3px 10px;border-radius:999px;font-size:11px;
+    font-family:'JetBrains Mono',monospace;
+    background:rgba(52,211,153,0.08);color:var(--accent-3);border:1px solid rgba(52,211,153,0.25);
+  }
+  .pub-status.review{background:rgba(245,158,11,0.08);color:#fbbf24;border-color:rgba(245,158,11,0.25)}
+  .pub-status.accept{background:rgba(34,211,238,0.08);color:var(--accent);border-color:rgba(34,211,238,0.25)}
+  .pub-link{
+    width:42px;height:42px;border-radius:11px;
+    display:grid;place-items:center;flex-shrink:0;
+    background:rgba(255,255,255,0.04);border:1px solid var(--line);
+    color:var(--ink-soft);text-decoration:none;
+    transition:all .25s ease;
+  }
+  .pub-link:hover{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#04101a;border-color:transparent;transform:rotate(-8deg)}
+
+  /* === SKILLS === */
+  .skills-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .skill-group{
+    padding:28px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .skill-group:hover{transform:translateY(-5px);border-color:rgba(34,211,238,0.3)}
+  .skill-group h3{
+    font-size:16px;margin-bottom:18px;color:var(--ink);
+    display:flex;align-items:center;gap:10px;
+  }
+  .skill-group h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .skill-tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{
+    padding:6px 12px;border-radius:8px;
+    background:rgba(255,255,255,0.04);border:1px solid var(--line);
+    font-size:12.5px;color:var(--ink-soft);
+    font-family:'JetBrains Mono',monospace;
+    transition:all .25s ease;
+  }
+  .tag:hover{color:var(--accent);border-color:rgba(34,211,238,0.4);transform:translateY(-1px)}
+
+  /* === TOOLS / EDUCATION / CERTS DUO === */
+  .duo-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .panel{
+    padding:30px;border-radius:18px;
+    background:var(--card);border:1px solid var(--line);
+  }
+  .panel h3{font-size:20px;margin-bottom:24px;display:flex;align-items:center;gap:12px}
+  .panel h3 .ico{
+    width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(167,139,250,0.18));
+    border:1px solid rgba(34,211,238,0.25);color:var(--accent);
+  }
+
+  .tool-card{
+    padding:18px;border-radius:13px;
+    background:rgba(255,255,255,0.025);border:1px solid var(--line);
+    margin-bottom:12px;
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    transition:all .25s ease;
+  }
+  .tool-card:hover{border-color:rgba(34,211,238,0.4);transform:translateX(4px)}
+  .tool-card .name{font-weight:600;color:var(--ink);font-size:15px}
+  .tool-card .desc{color:var(--ink-soft);font-size:13px;margin-top:3px}
+  .tool-card a{
+    padding:7px 14px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#04101a;font-weight:600;font-size:12.5px;text-decoration:none;
+    white-space:nowrap;
+    transition:transform .2s ease;
+  }
+  .tool-card a:hover{transform:translateY(-1px)}
+
+  .edu-item{padding:18px 0;border-bottom:1px solid var(--line)}
+  .edu-item:last-child{border-bottom:none}
+  .edu-item .deg{font-weight:600;color:var(--ink);font-size:15.5px}
+  .edu-item .school{color:var(--accent);font-size:14px;margin-top:3px}
+  .edu-item .ym{color:var(--ink-mute);font-size:13px;font-family:'JetBrains Mono',monospace;margin-top:4px}
+  .edu-item .thesis{color:var(--ink-soft);font-size:13.5px;margin-top:8px;font-style:italic}
+
+  .cert-list{display:grid;gap:10px}
+  .cert{
+    padding:14px 16px;border-radius:11px;
+    background:rgba(255,255,255,0.025);border:1px solid var(--line);
+    display:flex;align-items:center;gap:12px;
+    font-size:14px;color:var(--ink-soft);
+    transition:all .25s ease;
+  }
+  .cert:hover{border-color:rgba(52,211,153,0.3);color:var(--ink)}
+  .cert .check{
+    width:22px;height:22px;border-radius:50%;
+    background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.4);
+    display:grid;place-items:center;color:var(--accent-3);font-size:12px;flex-shrink:0;
+  }
+
+  /* === CONTACT === */
+  .contact-wrap{
+    padding:60px;border-radius:24px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.06),rgba(167,139,250,0.06));
+    border:1px solid var(--line);
+    text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .contact-wrap::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(600px circle at 50% 0%, rgba(34,211,238,0.12), transparent 60%);
+    pointer-events:none;
+  }
+  .contact-wrap h2{margin-bottom:14px}
+  .contact-wrap p{color:var(--ink-soft);max-width:560px;margin:0 auto 30px}
+  .contact-actions{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:30px;position:relative;z-index:1}
+  .contact-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+    margin-top:24px;text-align:left;position:relative;z-index:1;
+  }
+  .contact-mini{
+    padding:18px;border-radius:13px;
+    background:rgba(10,13,20,0.55);border:1px solid var(--line);
+    backdrop-filter:blur(8px);
+    text-decoration:none;color:var(--ink);
+    display:flex;align-items:center;gap:14px;
+    transition:all .25s ease;
+  }
+  .contact-mini:hover{border-color:rgba(34,211,238,0.4);transform:translateY(-3px)}
+  .contact-mini .ico{
+    width:40px;height:40px;border-radius:10px;flex-shrink:0;
+    background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(167,139,250,0.18));
+    border:1px solid rgba(34,211,238,0.25);
+    display:grid;place-items:center;color:var(--accent);
+  }
+  .contact-mini .lab{font-size:12px;color:var(--ink-mute);font-family:'JetBrains Mono',monospace}
+  .contact-mini .val{font-weight:600;color:var(--ink);font-size:14px;margin-top:2px;word-break:break-all}
+
+  /* === FOOTER === */
+  footer{
+    padding:40px 0;border-top:1px solid var(--line);
+    color:var(--ink-mute);font-size:13.5px;
+    text-align:center;
+  }
+  footer .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  footer a{color:var(--ink-soft);text-decoration:none;transition:color .2s ease}
+  footer a:hover{color:var(--accent)}
+
+  /* === REVEAL ANIMATION === */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  .reveal-left{opacity:0;transform:translateX(-50px);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
+  .reveal-left.visible{opacity:1;transform:translateX(0)}
+  .reveal-right{opacity:0;transform:translateX(50px);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
+  .reveal-right.visible{opacity:1;transform:translateX(0)}
+  .reveal-scale{opacity:0;transform:scale(0.9);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
+  .reveal-scale.visible{opacity:1;transform:scale(1)}
+
+  /* Stagger children */
+  .stagger > *{opacity:0;transform:translateY(30px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.3,1)}
+  .stagger.visible > *{opacity:1;transform:translateY(0)}
+  .stagger.visible > *:nth-child(1){transition-delay:.05s}
+  .stagger.visible > *:nth-child(2){transition-delay:.12s}
+  .stagger.visible > *:nth-child(3){transition-delay:.19s}
+  .stagger.visible > *:nth-child(4){transition-delay:.26s}
+  .stagger.visible > *:nth-child(5){transition-delay:.33s}
+  .stagger.visible > *:nth-child(6){transition-delay:.40s}
+  .stagger.visible > *:nth-child(7){transition-delay:.47s}
+  .stagger.visible > *:nth-child(8){transition-delay:.54s}
+
+  /* Floating animation for cards */
+  @keyframes floaty{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+  }
+
+  /* Scroll progress bar */
+  .scroll-progress{
+    position:fixed;top:0;left:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-3));
+    width:0%;z-index:101;
+    box-shadow:0 0 12px rgba(34,211,238,0.6);
+    transition:width .12s linear;
+  }
+
+  /* Section parallax (the section heading background number) */
+  .ghost-num{
+    position:absolute;right:40px;top:60px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(120px,18vw,260px);
+    font-weight:700;
+    background:linear-gradient(180deg,rgba(34,211,238,0.06),rgba(167,139,250,0.02));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    pointer-events:none;
+    letter-spacing:-.04em;line-height:1;
+    z-index:0;
+  }
+  section .container{position:relative;z-index:1}
+
+  /* Shooting star */
+  .shooting-star{
+    position:fixed;
+    width:2px;height:2px;
+    background:white;border-radius:50%;
+    box-shadow:0 0 8px white;
+    z-index:-1;pointer-events:none;
+    opacity:0;
+  }
+  .shooting-star::after{
+    content:'';position:absolute;top:50%;right:0;
+    width:120px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.7));
+    transform:translateY(-50%);
+  }
+  @keyframes shoot{
+    0%{opacity:0;transform:translate(0,0)}
+    10%{opacity:1}
+    100%{opacity:0;transform:translate(-700px,400px)}
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width:980px){
+    .container{padding:0 24px}
+    .nav{padding:14px 24px}
+    .nav.scrolled{padding:10px 24px}
+    .nav-links,.nav-cta{display:none}
+    .menu-toggle{display:block}
+    .hero{padding-top:100px}
+    .hero-grid{grid-template-columns:1fr;gap:60px}
+    .hero-card{order:-1}
+    .profile-shell{width:280px;height:360px}
+    .avatar{height:220px}
+    .avatar .initials{font-size:80px}
+    .about-grid{grid-template-columns:1fr;gap:40px}
+    .interest-grid{grid-template-columns:1fr}
+    .skills-wrap{grid-template-columns:1fr}
+    .duo-grid{grid-template-columns:1fr}
+    .pub{grid-template-columns:auto 1fr;gap:14px}
+    .pub-link{grid-column:1 / -1;width:auto;height:auto;padding:8px 14px;justify-self:start;border-radius:8px;font-size:12px;font-family:'JetBrains Mono',monospace}
+    .contact-grid{grid-template-columns:1fr}
+    .contact-wrap{padding:40px 24px}
+    section{padding:80px 0}
+    .float-tag{display:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="stars-canvas"></canvas>
+<div class="nebula n1"></div>
+<div class="nebula n2"></div>
+<div class="nebula n3"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ====== NAV ====== -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo">
+      <span class="logo-mark">KS</span>
+      <span>Kashif Saleem</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#tools">Tools</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu">≡</button>
+  </div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero" id="top">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <span class="hero-status"><span class="pulse"></span> Available for research collaborations</span>
+        <h1>Hi, I'm <span class="gradient">Kashif Saleem</span></h1>
+        <div class="hero-role" id="roleType"></div>
+        <p class="hero-tag">I decode complex biological systems through transcriptomics, multi-omics integration, and machine learning — building reproducible pipelines for biomedical discovery.</p>
+        <div class="hero-actions">
+          <a href="#publications" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            View Publications
+          </a>
+          <a href="#contact" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Contact Me
+          </a>
+        </div>
+        <div class="hero-socials">
+          <a class="social-btn" href="mailto:kashif.slm10@gmail.com" title="Email" aria-label="Email">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+          <a class="social-btn" href="https://www.linkedin.com/in/kashif-saleem" target="_blank" rel="noopener" title="LinkedIn" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+          </a>
+          <a class="social-btn" href="https://scholar.google.com/citations?user=kashifsaleem" target="_blank" rel="noopener" title="Google Scholar" aria-label="Google Scholar">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/></svg>
+          </a>
+          <a class="social-btn" href="https://github.com/kashifsaleem" target="_blank" rel="noopener" title="GitHub" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.95 10.95 0 015.75 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.26 5.68.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="profile-shell" id="tilt">
+          <span class="float-tag t1">// transcriptomics</span>
+          <span class="float-tag t2">// scRNA-seq</span>
+          <span class="float-tag t3">// AMR</span>
+          <div class="avatar">
+            <span class="initials">KS</span>
+          </div>
+          <div class="profile-meta">
+            <div class="name">Kashif Saleem</div>
+            <div class="title">Computational Biologist</div>
+            <div class="location">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Sector H13, Islamabad, Pakistan
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>SCROLL</span><span class="line"></span></div>
+</section>
+
+<!-- ====== ABOUT ====== -->
+<section id="about">
+  <span class="ghost-num" data-parallax="0.15">01</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">01 — About</span>
+      <h2>Where biology meets <span class="accent">computation</span></h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>I'm a <strong>Computational Biologist & Bioinformatics Researcher</strong> with focused training in transcriptomics, multi-omics integration, and data-driven modeling of complex biological systems.</p>
+        <p>I design <strong>reproducible analysis pipelines</strong> and apply machine-learning methods to large-scale sequencing data — bulk and single-cell RNA-seq, metagenomics, and integrative systems biology. My research spans immune-mediated diseases, antimicrobial resistance, and infectious disease genomics.</p>
+        <p>I'm driven by <strong>hypothesis-led computational biology</strong>, methodological rigor, and the development of scalable, open, and interpretable analytical frameworks for biomedical research.</p>
+      </div>
+      <div class="stat-grid reveal">
+        <div class="stat-card"><div class="num">8+</div><div class="lab">Publications & Preprints</div></div>
+        <div class="stat-card"><div class="num">5+</div><div class="lab">Years of Research</div></div>
+        <div class="stat-card"><div class="num">2</div><div class="lab">Open-Source Tools</div></div>
+        <div class="stat-card"><div class="num">4</div><div class="lab">Research Roles</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== RESEARCH INTERESTS ====== -->
+<section id="research">
+  <span class="ghost-num" data-parallax="0.15">02</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">02 — Research Interests</span>
+      <h2>What I work <span class="accent">on</span></h2>
+      <p class="section-sub">Hypothesis-driven, statistically rigorous, and biologically interpretable computational research at the intersection of omics and disease.</p>
+    </div>
+    <div class="interest-grid stagger">
+      <div class="interest">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 010 20M2 12h20"/></svg></div>
+        <h3>Transcriptomic & Single-Cell Analysis</h3>
+        <p>Immune-mediated and infectious diseases, with emphasis on gene-regulatory mechanisms underlying disease heterogeneity and progression.</p>
+      </div>
+      <div class="interest">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 9v6M18 9v6M9 6h6M9 18h6"/></svg></div>
+        <h3>Multi-Omics Integration</h3>
+        <p>Systems-level integration of bulk RNA-seq, single-cell transcriptomics, metagenomics, and metadata to infer biologically meaningful pathways and networks.</p>
+      </div>
+      <div class="interest">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>AMR & Host–Pathogen Modeling</h3>
+        <p>Computational modeling of antimicrobial resistance, including population-level genomic surveillance, transmission patterns, and evolutionary analysis.</p>
+      </div>
+      <div class="interest">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <h3>Reproducible Methods Development</h3>
+        <p>Open, scalable, and interpretable computational methods for high-throughput biology — prioritizing statistical rigor and biological insight.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== EXPERIENCE ====== -->
+<section id="experience">
+  <span class="ghost-num" data-parallax="0.15">03</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">03 — Experience</span>
+      <h2>Research <span class="accent">trajectory</span></h2>
+    </div>
+    <div class="timeline">
+      <div class="tl-item reveal-left">
+        <div class="tl-card">
+          <div class="tl-meta">
+            <div>
+              <div class="tl-role">Research Scientist</div>
+              <div class="tl-org">National Institutes of Health (NIH), Islamabad — Public Health Laboratories</div>
+            </div>
+            <div class="tl-date">Jan 2025 — Present</div>
+          </div>
+          <ul class="tl-list">
+            <li>Conduct genomic and transcriptomic analyses for infectious disease surveillance across hundreds of clinical and environmental samples.</li>
+            <li>Design reproducible NGS workflows (QC, alignment, variant calling, statistical analysis) using Linux pipelines and workflow managers.</li>
+            <li>Apply comparative genomics and metadata analysis to investigate transmission patterns and resistance trends.</li>
+            <li>Translate sequencing results into actionable public-health insights with wet-lab and epidemiology teams.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal-left">
+        <div class="tl-card">
+          <div class="tl-meta">
+            <div>
+              <div class="tl-role">Research Assistant <span style="color:var(--ink-mute);font-weight:400">(Remote)</span></div>
+              <div class="tl-org">Green Biotec GmbH, Bremen, Germany</div>
+            </div>
+            <div class="tl-date">Jan 2025 — Dec 2025</div>
+          </div>
+          <ul class="tl-list">
+            <li>Single-cell RNA-seq projects: preprocessing, QC, clustering, cell-type annotation, and differential expression.</li>
+            <li>Refined high-dimensional analysis workflows with emphasis on biological interpretation and reproducibility.</li>
+            <li>Contributed to training materials and hands-on workshops in single-cell genomics.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal-left">
+        <div class="tl-card">
+          <div class="tl-meta">
+            <div>
+              <div class="tl-role">Technical Analyst — Bioinformatics <span style="color:var(--ink-mute);font-weight:400">(Remote)</span></div>
+              <div class="tl-org">Biocomputomics, Karachi, Pakistan</div>
+            </div>
+            <div class="tl-date">Mar 2024 — Jul 2025</div>
+          </div>
+          <ul class="tl-list">
+            <li>Integrative bioinformatics across transcriptomics, genomics, and molecular modeling — supporting hypothesis generation.</li>
+            <li>Applied ML methods for feature selection and biological pattern discovery, prioritizing model interpretability.</li>
+            <li>Contributed computational analyses to peer-reviewed manuscripts in systems biology and drug discovery.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal-left">
+        <div class="tl-card">
+          <div class="tl-meta">
+            <div>
+              <div class="tl-role">Bioinformatics Scientist</div>
+              <div class="tl-org">MERtech Company, Islamabad, Pakistan</div>
+            </div>
+            <div class="tl-date">2021 — 2024</div>
+          </div>
+          <ul class="tl-list">
+            <li>Built and maintained pipelines for RNA-seq, metagenomics, and comparative genomics — emphasizing reproducibility and scalability.</li>
+            <li>Conducted statistical and systems-level analyses of high-throughput sequencing data.</li>
+            <li>Mentored undergraduate and graduate trainees in R, Python, and applied bioinformatics.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item reveal-left">
+        <div class="tl-card">
+          <div class="tl-meta">
+            <div>
+              <div class="tl-role">Co-Founder & Scientific Lead</div>
+              <div class="tl-org">Bioinfocamp</div>
+            </div>
+            <div class="tl-date">2024</div>
+          </div>
+          <ul class="tl-list">
+            <li>Co-founded a training and research initiative focused on applied computational biology and reproducible data analysis.</li>
+            <li>Designed curricula on real biological datasets, statistical rigor, and open-science practices.</li>
+            <li>Supervised early-career researchers on academic-grade bioinformatics projects.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PUBLICATIONS ====== -->
+<section id="publications">
+  <span class="ghost-num" data-parallax="0.15">04</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">04 — Publications</span>
+      <h2>Peer-reviewed <span class="accent">work</span></h2>
+      <p class="section-sub">Selected publications and preprints — including first-author contributions in transcriptomics, AMR, and computational drug discovery.</p>
+    </div>
+    <div class="pub-list stagger">
+
+      <div class="pub">
+        <div class="pub-num">01</div>
+        <div class="pub-body">
+          <div class="pub-title">Decoding Systemic Lupus Erythematosus Pathogenesis: A Transcriptomics Approach to Identifying Key Molecular Mechanisms</div>
+          <div class="pub-meta"><span class="pub-author-self">Kashif Saleem</span>, R. Z. Paracha, L. Khalid, A. Manzoor, D. Murad, M. Nisar, Nazar MD · <em>Journal of Computer-Aided Molecular Design</em></div>
+          <span class="pub-status accept">Accepted</span>
+        </div>
+        <a class="pub-link" href="#" aria-label="View publication">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">02</div>
+        <div class="pub-body">
+          <div class="pub-title">Designing of Sorafenib Analogues to Target c-RAF for the Management of Hepatocellular Carcinoma; Molecular Dynamics, mmPBSA Analysis and Integration of Machine Learning</div>
+          <div class="pub-meta">S. Ijaz, R. Z. Paracha, M. Nisar, <span class="pub-author-self">Kashif Saleem</span> · <em>Archives of Pharmacal Research</em></div>
+          <span class="pub-status">Published</span>
+        </div>
+        <a class="pub-link" href="https://doi.org/10.1142/S0219720025500222" target="_blank" rel="noopener" aria-label="Open DOI">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">03</div>
+        <div class="pub-body">
+          <div class="pub-title">Investigating the Evolution and Predicting the Resistance Trends Against Acinetobacter baumannii: An 18-Year Analysis Using Vivli AMR Surveillance Data</div>
+          <div class="pub-meta">L. Khalid, <span class="pub-author-self">Kashif Saleem</span>, Z. Hussain, R. Z. Paracha, A. Hussain, I. Sajid · <em>Computers in Biology and Medicine</em></div>
+          <span class="pub-status">Published</span>
+        </div>
+        <a class="pub-link" href="https://doi.org/10.1016/j.jgar.2025.11.022" target="_blank" rel="noopener" aria-label="Open DOI">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">04</div>
+        <div class="pub-body">
+          <div class="pub-title">Towards Safer Antimicrobial Peptide Therapeutics: A Predictive–Generative Framework Targeting ESKAPE Pathogens</div>
+          <div class="pub-meta">Z. Rashid, H. Ahmed, <span class="pub-author-self">Kashif Saleem</span>, M. R. U. Siddiqui · <em>Springer Nature — Probiotics and Antimicrobial Proteins</em></div>
+          <span class="pub-status">Published</span>
+        </div>
+        <a class="pub-link" href="https://doi.org/10.1007/s12602-026-11022-w" target="_blank" rel="noopener" aria-label="Open DOI">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">05</div>
+        <div class="pub-body">
+          <div class="pub-title">Feature Extraction from Genome Sequence Using Machine Learning</div>
+          <div class="pub-meta">D. Murad, R. Z. Paracha, <span class="pub-author-self">Kashif Saleem</span>, B. Ishtiaq · <em>Springer Nature — Book Chapter</em></div>
+          <span class="pub-status accept">Accepted</span>
+        </div>
+        <a class="pub-link" href="#" aria-label="View publication">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">06</div>
+        <div class="pub-body">
+          <div class="pub-title">Computational Target Identification for Dengue Infection: Integrating Microarray, High-Throughput Sequencing, and Systems Biology Approaches</div>
+          <div class="pub-meta">E. Fatima, R. Z. Paracha, <span class="pub-author-self">Kashif Saleem</span>, A. Manzoor, Nazar MD · <em>Journal of Computer-Aided Molecular Design</em></div>
+          <span class="pub-status review">Under Review</span>
+        </div>
+        <a class="pub-link" href="#" aria-label="View publication">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">07</div>
+        <div class="pub-body">
+          <div class="pub-title">Integrative Analysis of Gut Microbiota and Host Phenotypic Traits in Broilers Fed Phytogenic and Organic Acid Formulations</div>
+          <div class="pub-meta">Z. Rashid, H. Ahmed, <span class="pub-author-self">Kashif Saleem</span> · <em>Annals of Microbiology</em></div>
+          <span class="pub-status review">Under Review</span>
+        </div>
+        <a class="pub-link" href="#" aria-label="View publication">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+      <div class="pub">
+        <div class="pub-num">08</div>
+        <div class="pub-body">
+          <div class="pub-title">Investigating the Anti-HSV-2 Potential of Phytochemicals from Polygonum aviculare using In-Silico Techniques</div>
+          <div class="pub-meta">R. S. Butt, R. Z. Paracha, <span class="pub-author-self">Kashif Saleem</span> · <em>PLOS One</em></div>
+          <span class="pub-status review">Under Review</span>
+        </div>
+        <a class="pub-link" href="#" aria-label="View publication">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ====== SKILLS ====== -->
+<section id="skills">
+  <span class="ghost-num" data-parallax="0.15">05</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">05 — Methods & Stack</span>
+      <h2>Tools of the <span class="accent">trade</span></h2>
+    </div>
+    <div class="skills-wrap stagger">
+      <div class="skill-group">
+        <h3><span class="dot"></span> High-Throughput Sequencing</h3>
+        <div class="skill-tags">
+          <span class="tag">Bulk RNA-seq</span>
+          <span class="tag">scRNA-seq</span>
+          <span class="tag">Metagenomics</span>
+          <span class="tag">Variant Calling</span>
+          <span class="tag">Gene-Set Enrichment</span>
+          <span class="tag">Cell-Type Annotation</span>
+          <span class="tag">Differential Expression</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3><span class="dot"></span> Statistical & ML Modeling</h3>
+        <div class="skill-tags">
+          <span class="tag">Hypothesis Testing</span>
+          <span class="tag">Supervised ML</span>
+          <span class="tag">Unsupervised ML</span>
+          <span class="tag">Feature Selection</span>
+          <span class="tag">Network Biology</span>
+          <span class="tag">Multi-Omics Integration</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3><span class="dot"></span> Reproducible Computing</h3>
+        <div class="skill-tags">
+          <span class="tag">Nextflow</span>
+          <span class="tag">Snakemake</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Singularity</span>
+          <span class="tag">Linux / HPC</span>
+          <span class="tag">Cloud Pipelines</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3><span class="dot"></span> Programming</h3>
+        <div class="skill-tags">
+          <span class="tag">R</span>
+          <span class="tag">Python</span>
+          <span class="tag">Shell / Bash</span>
+          <span class="tag">Git</span>
+          <span class="tag">Markdown</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3><span class="dot"></span> Molecular Modeling</h3>
+        <div class="skill-tags">
+          <span class="tag">Protein–Ligand Docking</span>
+          <span class="tag">Molecular Dynamics</span>
+          <span class="tag">MM/PBSA</span>
+          <span class="tag">Binding Free-Energy</span>
+          <span class="tag">Sequence Features</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <h3><span class="dot"></span> Biological Interpretation</h3>
+        <div class="skill-tags">
+          <span class="tag">Pathway Analysis</span>
+          <span class="tag">Functional Annotation</span>
+          <span class="tag">Systems Biology</span>
+          <span class="tag">Phenotype Integration</span>
+          <span class="tag">Open Science</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== TOOLS, EDUCATION, CERTS ====== -->
+<section id="tools">
+  <span class="ghost-num" data-parallax="0.15">06</span>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">06 — Tools, Education & Credentials</span>
+      <h2>Built, learned, <span class="accent">earned</span></h2>
+    </div>
+
+    <div class="duo-grid" style="margin-bottom:30px">
+      <div class="panel reveal">
+        <h3><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span> Software & Tools</h3>
+        <div class="tool-card">
+          <div>
+            <div class="name">PHEGEN</div>
+            <div class="desc">Gene prediction tool for antimicrobial resistance — exploratory analysis of metagenomic datasets.</div>
+          </div>
+          <a href="https://phegen.streamlit.app/" target="_blank" rel="noopener">Launch ↗</a>
+        </div>
+        <div class="tool-card">
+          <div>
+            <div class="name">Red-Eye-Detector</div>
+            <div class="desc">Multimodal app to detect conjunctivitis from eye images, paired with an AI-based chatbot.</div>
+          </div>
+          <a href="#" style="background:rgba(255,255,255,0.05);color:var(--ink-soft);border:1px solid var(--line)">In Progress</a>
+        </div>
+      </div>
+
+      <div class="panel reveal">
+        <h3><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span> Education</h3>
+        <div class="edu-item">
+          <div class="deg">M.S. in Bioinformatics — First Class Honors · CGPA 3.35/4.0</div>
+          <div class="school">National University of Science and Technology (NUST), Islamabad</div>
+          <div class="ym">2023</div>
+          <div class="thesis">Thesis: Computational Analysis of Systemic Lupus Erythematosus (SLE) using Sequencing, Systems Biology and Machine Learning approaches.</div>
+        </div>
+        <div class="edu-item">
+          <div class="deg">B.S. (Hons) in Bioinformatics — First Class Honors · CGPA 3.19/4.0</div>
+          <div class="school">Government College University Faisalabad (GCUF)</div>
+          <div class="ym">2021</div>
+          <div class="thesis">Thesis: In-Silico Mutational Analysis of BHLHA9 gene causing Complex Camptodactyly and Mesoaxial Synostotic Syndactyly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="duo-grid">
+      <div class="panel reveal">
+        <h3><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13L17 22l-5-3-5 3 1.5-9"/></svg></span> Selected Certificates</h3>
+        <div class="cert-list">
+          <div class="cert"><span class="check">✓</span> IELTS Academic — Overall Band 6.5</div>
+          <div class="cert"><span class="check">✓</span> Data Analysis with R — Google (2024)</div>
+          <div class="cert"><span class="check">✓</span> Big Data, AI & Ethics — UC Davis (2024)</div>
+          <div class="cert"><span class="check">✓</span> Generative AI with Large Language Models — DeepLearning.AI (2024)</div>
+        </div>
+      </div>
+
+      <div class="panel reveal">
+        <h3><span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span> Teaching & Mentorship</h3>
+        <div class="cert-list">
+          <div class="cert"><span class="check">→</span> Instructor — R Programming for Bioinformatics, MERtech (2024)</div>
+          <div class="cert"><span class="check">→</span> Instructor — Python for Bioinformatics, MERtech (2024)</div>
+          <div class="cert"><span class="check">→</span> Trainer — Single-Cell RNA-seq Workshop, MERtech (2024)</div>
+          <div class="cert"><span class="check">→</span> Trainer — Scripting (Python & R), International Trainees (Qatar, Turkey, China, Pakistan; 2024)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CONTACT ====== -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-wrap reveal">
+      <span class="eyebrow">07 — Contact</span>
+      <h2>Let's build something <span class="accent">scientific</span></h2>
+      <p>Open to research collaborations, PhD opportunities, and interesting computational biology problems. The fastest way to reach me is by email.</p>
+      <div class="contact-actions">
+        <a href="mailto:kashif.slm10@gmail.com" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send an Email
+        </a>
+        <a href="https://www.linkedin.com/in/kashif-saleem" target="_blank" rel="noopener" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+          Connect on LinkedIn
+        </a>
+      </div>
+
+      <div class="contact-grid">
+        <a class="contact-mini" href="mailto:kashif.slm10@gmail.com">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+          <div><div class="lab">PERSONAL EMAIL</div><div class="val">kashif.slm10@gmail.com</div></div>
+        </a>
+        <a class="contact-mini" href="mailto:kashif.saleem@nih.org.pk">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <div><div class="lab">INSTITUTIONAL EMAIL</div><div class="val">kashif.saleem@nih.org.pk</div></div>
+        </a>
+        <a class="contact-mini" href="https://scholar.google.com/citations?user=kashifsaleem" target="_blank" rel="noopener">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/></svg></span>
+          <div><div class="lab">PUBLICATIONS</div><div class="val">Google Scholar</div></div>
+        </a>
+        <a class="contact-mini" href="https://www.linkedin.com/in/kashif-saleem" target="_blank" rel="noopener">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg></span>
+          <div><div class="lab">PROFESSIONAL</div><div class="val">LinkedIn</div></div>
+        </a>
+        <a class="contact-mini" href="https://github.com/kashifsaleem" target="_blank" rel="noopener">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.95 10.95 0 015.75 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.26 5.68.41.36.78 1.06.78 2.13 0 1.54-.01 2.78-.01 3.16 0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg></span>
+          <div><div class="lab">CODE & PROJECTS</div><div class="val">GitHub</div></div>
+        </a>
+        <a class="contact-mini" href="https://phegen.streamlit.app/" target="_blank" rel="noopener">
+          <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span>
+          <div><div class="lab">FEATURED TOOL</div><div class="val">PHEGEN App</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div>© <span id="year"></span> Kashif Saleem · Crafted with code, biology & curiosity.</div>
+      <div>Islamabad, Pakistan · <a href="#top">Back to top ↑</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========== 3D DNA HELIX BACKGROUND =========== */
+(() => {
+  const canvas = document.getElementById('bg-canvas');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x05060a, 0.018);
+
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(0, 0, 30);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  // --- Helix group ---
+  const helix = new THREE.Group();
+  scene.add(helix);
+
+  const turns = 6;
+  const pointsPerTurn = 28;
+  const radius = 3;
+  const height = 36;
+  const total = turns * pointsPerTurn;
+
+  // Two strands (spheres) and rungs (cylinders)
+  const strandA = [];
+  const strandB = [];
+
+  const matA = new THREE.MeshBasicMaterial({ color:0x22d3ee, transparent:true, opacity:0.45 });
+  const matB = new THREE.MeshBasicMaterial({ color:0xa78bfa, transparent:true, opacity:0.45 });
+  const sphereGeo = new THREE.SphereGeometry(0.10, 12, 12);
+
+  for(let i=0;i<total;i++){
+    const t = i / total;
+    const angle = t * turns * Math.PI * 2;
+    const y = (t - 0.5) * height;
+
+    const a = new THREE.Mesh(sphereGeo, matA);
+    a.position.set(Math.cos(angle)*radius, y, Math.sin(angle)*radius);
+    helix.add(a); strandA.push(a);
+
+    const b = new THREE.Mesh(sphereGeo, matB);
+    b.position.set(Math.cos(angle+Math.PI)*radius, y, Math.sin(angle+Math.PI)*radius);
+    helix.add(b); strandB.push(b);
+  }
+
+  // Rungs (every 2nd point)
+  const rungMat = new THREE.LineBasicMaterial({ color:0x7d8aa8, transparent:true, opacity:0.08 });
+  for(let i=0;i<total;i+=2){
+    const geo = new THREE.BufferGeometry().setFromPoints([strandA[i].position, strandB[i].position]);
+    const line = new THREE.Line(geo, rungMat);
+    helix.add(line);
+  }
+
+  // --- Floating particles ---
+  const particleGeo = new THREE.BufferGeometry();
+  const pCount = 280;
+  const positions = new Float32Array(pCount*3);
+  for(let i=0;i<pCount;i++){
+    positions[i*3]   = (Math.random()-0.5)*60;
+    positions[i*3+1] = (Math.random()-0.5)*60;
+    positions[i*3+2] = (Math.random()-0.5)*40 - 8;
+  }
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particleMat = new THREE.PointsMaterial({ color:0xffffff, size:0.03, transparent:true, opacity:0.25 });
+  const particles = new THREE.Points(particleGeo, particleMat);
+  scene.add(particles);
+
+  // Mouse parallax
+  const mouse = { x:0, y:0, tx:0, ty:0 };
+  window.addEventListener('mousemove', e => {
+    mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // Resize
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Scroll-driven rotation
+  let scrollY = 0;
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+  // Animate
+  const clock = new THREE.Clock();
+  function tick(){
+    const t = clock.getElapsedTime();
+    mouse.x += (mouse.tx - mouse.x) * 0.03;
+    mouse.y += (mouse.ty - mouse.y) * 0.03;
+
+    helix.rotation.y = t*0.18 + scrollY*0.0012;
+    helix.rotation.x = mouse.y * 0.18;
+    helix.rotation.z = mouse.x * 0.06;
+
+    particles.rotation.y = t*0.04;
+    particles.rotation.x = t*0.02;
+
+    camera.position.x = mouse.x * 0.6;
+    camera.position.y = -mouse.y * 0.4;
+    camera.lookAt(0,0,0);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* =========== TYPEWRITER ROLE =========== */
+(() => {
+  const el = document.getElementById('roleType');
+  const roles = [
+    'Computational Biologist',
+    'Bioinformatics Researcher',
+    'Transcriptomics Specialist',
+    'scRNA-seq · AMR · Multi-Omics'
+  ];
+  let i=0, j=0, deleting=false;
+  function step(){
+    const word = roles[i];
+    el.innerHTML = '<span style="color:var(--accent)">&gt;</span> ' + word.slice(0, j) + '<span class="cursor"></span>';
+    if(!deleting && j < word.length){ j++; setTimeout(step, 55); }
+    else if(deleting && j > 0){ j--; setTimeout(step, 30); }
+    else {
+      deleting = !deleting;
+      if(!deleting) i = (i+1)%roles.length;
+      setTimeout(step, deleting ? 1400 : 300);
+    }
+  }
+  step();
+})();
+
+/* =========== NAV SCROLL STATE =========== */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 30);
+});
+
+/* =========== REVEAL ON SCROLL =========== */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger').forEach(el => observer.observe(el));
+
+/* =========== SCROLL PROGRESS BAR =========== */
+const progressBar = document.getElementById('scrollProgress');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const total = h.scrollHeight - h.clientHeight;
+  const pct = total > 0 ? (h.scrollTop / total) * 100 : 0;
+  progressBar.style.width = pct + '%';
+});
+
+/* =========== PARALLAX FOR GHOST NUMBERS & NEBULAS =========== */
+const parallaxEls = document.querySelectorAll('[data-parallax]');
+const nebulas = document.querySelectorAll('.nebula');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  parallaxEls.forEach(el => {
+    const speed = parseFloat(el.dataset.parallax) || 0.15;
+    const rect = el.parentElement.getBoundingClientRect();
+    const offset = (rect.top - window.innerHeight) * speed;
+    el.style.transform = `translateY(${offset}px)`;
+  });
+  nebulas.forEach((n, i) => {
+    const dir = i % 2 === 0 ? -1 : 1;
+    n.style.transform = `translate3d(${y * 0.04 * dir}px, ${y * 0.08 * dir}px, 0)`;
+  });
+});
+
+/* =========== STARFIELD CANVAS =========== */
+(() => {
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+  let dpr = Math.min(window.devicePixelRatio, 2);
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.scale(dpr, dpr);
+    W = window.innerWidth; H = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Stars with multiple layers for parallax
+  const stars = [];
+  const STAR_COUNT = 220;
+  const colors = ['#ffffff','#cfeaff','#e6d7ff','#bfead8','#ffe8b3'];
+  for(let i=0;i<STAR_COUNT;i++){
+    stars.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: Math.random()*1.2 + 0.2,
+      a: Math.random()*0.5 + 0.15,
+      tw: Math.random()*0.02 + 0.005, // twinkle speed
+      phase: Math.random()*Math.PI*2,
+      depth: Math.random()*0.7 + 0.2, // for parallax
+      color: colors[(Math.random()*colors.length)|0]
+    });
+  }
+
+  // Shooting stars
+  const shooters = [];
+  function spawnShooter(){
+    shooters.push({
+      x: Math.random()*W*0.6 + W*0.4,
+      y: Math.random()*H*0.4,
+      vx: -(Math.random()*4 + 6),
+      vy: (Math.random()*2 + 2),
+      life: 1,
+      len: Math.random()*120 + 80
+    });
+  }
+  setInterval(() => { if(Math.random() < 0.6) spawnShooter(); }, 4500);
+
+  let scrollY = 0;
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+
+    // Stars
+    for(const s of stars){
+      s.phase += s.tw;
+      const tw = (Math.sin(s.phase) + 1) * 0.5;
+      const alpha = s.a * (0.45 + tw*0.55);
+      const py = (s.y - scrollY * s.depth * 0.15) % H;
+      const yy = py < 0 ? py + H : py;
+
+      ctx.beginPath();
+      ctx.arc(s.x, yy, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = alpha;
+      ctx.fill();
+
+      // glow on bigger stars
+      if(s.r > 0.9){
+        const grd = ctx.createRadialGradient(s.x, yy, 0, s.x, yy, s.r*4);
+        grd.addColorStop(0, s.color);
+        grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd;
+        ctx.globalAlpha = alpha*0.35;
+        ctx.beginPath();
+        ctx.arc(s.x, yy, s.r*4, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Shooting stars
+    for(let i=shooters.length-1;i>=0;i--){
+      const s = shooters[i];
+      s.x += s.vx; s.y += s.vy; s.life -= 0.012;
+      if(s.life <= 0 || s.x < -200 || s.y > H+100){ shooters.splice(i,1); continue; }
+      const tx = s.x - s.vx * (s.len/10);
+      const ty = s.y - s.vy * (s.len/10);
+      const grd = ctx.createLinearGradient(s.x, s.y, tx, ty);
+      grd.addColorStop(0, `rgba(255,255,255,${s.life})`);
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.strokeStyle = grd;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+      // bright head
+      ctx.fillStyle = `rgba(255,255,255,${s.life})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 1.6, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* =========== TILT (PROFILE CARD) =========== */
+(() => {
+  const card = document.getElementById('tilt');
+  if(!card) return;
+  const wrap = card.parentElement;
+  wrap.addEventListener('mousemove', e => {
+    const r = wrap.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    card.style.transform = `rotateY(${x*14}deg) rotateX(${-y*14}deg) translateZ(0)`;
+  });
+  wrap.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateY(0) rotateX(0)';
+  });
+})();
+
+/* =========== INTEREST SPOTLIGHT =========== */
+document.querySelectorAll('.interest').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});
+
+/* =========== FOOTER YEAR =========== */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* =========== MENU TOGGLE (mobile, simple scroll) =========== */
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+  document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+});
+</script>
+</body>
+</html>
